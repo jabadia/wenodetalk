@@ -51,21 +51,21 @@
 
 			var pins = [11,12,13];
 
-			function updateButtonClasses(pin,state)
+			function updateLedButtons(pin,state)
 			{
 				$('[data-pin=' + pin + ']').removeClass('btn-primary btn-default');
 				$('[data-pin=' + pin + '][data-state=' + state + ']').addClass('btn-primary');
 				$('[data-pin=' + pin + '][data-state!=' + state + ']').addClass('btn-default');				
 			}
 
-			function updateLedState(pin)
+			function getLedState(pin)
 			{
 				$.ajax({
 					url: 'http://localhost:3000/led/' + pin,
 					dataType: 'json'
 				}).done(function(data)
 				{
-					updateButtonClasses(pin,data.state);
+					updateLedButtons(pin,data.state);
 				});
 			}
 
@@ -81,11 +81,14 @@
 					dataType: 'json'
 				}).done(function(data)
 				{
-					updateButtonClasses(pin,data.state);
+					updateLedButtons(pin,data.state);
 				});
 			})
 
-			pins.forEach(updateLedState);
+			$('[data-state=on]').prepend([$('<span>').addClass('glyphicon glyphicon-ok'),' ']);
+			$('[data-state=off]').prepend([$('<span>').addClass('glyphicon glyphicon-remove'),' ']);
+
+			pins.forEach(getLedState);
 		});
 	</script>
 </body>
