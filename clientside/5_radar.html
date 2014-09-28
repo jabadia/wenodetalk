@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Arduino Radar through REST</title>
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="lib/bootstrap-slider.css">
+	<style>
+		#controls
+		{
+			margin-top: 20px;
+			padding: 20px;
+			background: #aaa;
+			border-radius: 10px;
+		}
+		.slider.slider-horizontal
+		{
+			width: 100%;
+		}
+		#radar-canvas
+		{
+			width: 100%; /*750px*/
+			height: 400px;
+			background: #ddd
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-8 col-md-offset-2">
+				<h1><span class="glyphicon glyphicon-screenshot"></span> Arduino Radar</h1>
+				<canvas id="radar-canvas" height="400px" width="750px"></canvas>
+				<h2>Current Angle: <span id="angle"></span> º</h2>
+				<div id="controls">
+					<input id="servo-angle" data-slider-id='servo-angle-slider' type="text" data-slider-min="0" data-slider-max="180" data-slider-step="1" data-slider-value="90"/>
+					<button type="button" class="btn btn-default" id="start-sweeping">Start</button>
+					<button type="button" class="btn btn-default" id="stop-sweeping">Stop</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<script src="lib/bootstrap-slider.js"></script>
+	<script>		
+		$(function()
+		{
+			"use strict";
+
+			console.log("ready!");
+
+			var radarAngle = 0,
+				radarAngleInc = 5,
+				readings = [],
+				maxAge = 30,
+				maxDistance = 80; // cm
+
+			var intervalId;
+
+
+			function radians(degrees)
+			{
+				return degrees * Math.PI / 180.0;
+			}
+
+			function drawRadar()
+			{
+				var ctx = $('#radar-canvas')[0].getContext('2d');
+
+				var height = ctx.canvas.clientHeight;
+				var width  = ctx.canvas.clientWidth;
+
+				ctx.clearRect(0,0,width,height);
+				ctx.save();
+				ctx.translate(width/2, height);
+				ctx.rotate(radians(180));
+
+				// surface
+				ctx.fillStyle = "rgba(0,200,0,0.2)";
+				ctx.beginPath();
+				ctx.moveTo(0,0);
+				ctx.arc(0,0,width/2,radians(0),radians(180), false);
+				ctx.lineTo(0,0);
+				ctx.closePath();
+				ctx.fill();
+
+				// line
+				var angle = radarAngle;
+				var half_width = 2.5;
+				ctx.fillStyle = "rgba(0,200,0,0.9)";
+				ctx.beginPath();
+				ctx.arc(0,0,20,radians(angle+half_width*5),radians(angle-half_width*5), true);
+				ctx.arc(0,0,width/2+10,radians(angle-half_width),radians(angle+half_width), false);
+				ctx.closePath();
+				ctx.fill();
+
+				// readings
+				console.log(readings.length);
+				readings.forEach(function(reading)
+				{
+					var angle = reading.angle,
+						dist  = reading.distance / maxDistance * width/2,
+						half_width = 2.5,
+						half_height = 7,
+						alpha = 1-(reading.age / maxAge);
+
+					ctx.fillStyle = "rgba(200,0,0," + alpha + ")";
+					ctx.beginPath();
+					ctx.arc(0,0,dist-half_height,radians(angle+half_width),radians(angle-half_width), true);
+					ctx.arc(0,0,dist+half_height,radians(angle-half_width),radians(angle+half_width), false);
+					ctx.closePath();
+					ctx.fill();
+				});
+
+				ctx.restore();
+			}
+
+			////////////////////////////////////////////////////
+
+			function start()
+			{
+				console.log("start");
+				stop();
+				intervalId = setInterval(updateRadar,100);				
+			}
+
+			function stop()
+			{
+				console.log("stop");
+				if( intervalId )
+				{
+					clearInterval(intervalId);
+					intervalId = null;
+				}
+			}
+
+			function updateRadar()
+			{
+				radarAngle += radarAngleInc;
+				if( radarAngle >= 180)
+				{
+					radarAngle = 180;
+					radarAngleInc = -radarAngleInc;
+				}
+				if( radarAngle <= 0)
+				{
+					radarAngle = 0;
+					radarAngleInc = -radarAngleInc;
+				}
+				getRadarReading(drawRadar);
+			}
+
+			function getRadarReading(cb)
+			{
+				// move servo to desired angle
+				$.ajax({
+					type: 'POST',
+					url: 'http://localhost:3000/servo',
+					data: { position: parseFloat(radarAngle,10) },
+					dataType: 'json'
+				}).done(function(servoData)
+				{
+					// get distance reading
+					$.ajax({
+						url: 'http://localhost:3000/distance',
+						dataType: 'json'
+					}).done(function(distanceData)
+					{
+						radarAngle = parseFloat(servoData.position,10);
+						$('#angle').text(Math.floor(10*radarAngle)/10);
+						slider.slider('setValue',radarAngle,false);
+
+						readings.push({
+							distance: parseFloat(distanceData.distance.cm,10),
+							angle: radarAngle,
+							age: 0
+						});
+
+						readings.forEach(function(reading){ reading.age += 1; });
+						readings = readings.filter(function(reading){ return reading.age < maxAge; });
+
+						cb && cb();
+					})
+
+				});
+			}
+
+
+			var slider = $('#servo-angle').slider({
+				formatter: function(value) { return 'Current angle: ' + value; }
+			});
+
+			slider.on('slide', function(evt)
+			{
+				if( evt.value )
+				{				
+					console.log(evt.value);
+					radarAngle = evt.value;
+					getRadarReading(drawRadar);
+				}
+			})
+
+			slider.slider('setValue',radarAngle,true);
+			$('#start-sweeping').click(start);
+			$('#stop-sweeping').click(stop);
+
+			drawRadar();
+
+		});
+	</script>
+</body>
+</html>
