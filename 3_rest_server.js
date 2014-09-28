@@ -66,9 +66,9 @@ function initSensors()
 {
 	servo = { position: 0 };
 
-	leds.push({pin:11, value:0});
-	leds.push({pin:12, value:0});
-	leds.push({pin:13, value:0});
+	leds.push({pin:11, value:0, on: function() { this.value=1; }, off: function() { this.value=0; }});
+	leds.push({pin:12, value:0, on: function() { this.value=1; }, off: function() { this.value=0; }});
+	leds.push({pin:13, value:0, on: function() { this.value=1; }, off: function() { this.value=0; }});
 
 	latestDistanceReading = { cm: 20.0 };
 
@@ -86,6 +86,12 @@ function initSensors()
 		latestPhotoReading = 10 + Math.random() * 90.0;
 		latestFlexReading = 10 + Math.random() * 80.0;
 	}, 25);
+}
+
+function findLed(pin)
+{
+	var led = leds.filter(function(led){ return led.pin == pin; });
+	return led.length == 1? led[0] : null;
 }
 
 function serverRoot(req,res)
