@@ -3,7 +3,9 @@ extends ./layout.jade
 block content
 	h1 Arduino REST Server
 	pre= path
-	pre= JSON.stringify(flex)
+	div 
+		b flex: 
+		pre= JSON.stringify(flex)
 	h2 Documentation
 	p 
 		| This resource allows to query the bend angle of the 

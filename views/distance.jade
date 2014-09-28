@@ -3,7 +3,9 @@ extends ./layout.jade
 block content
 	h1 Arduino REST Server
 	pre= path
-	pre= JSON.stringify(distance)
+	div 
+		b distance: 
+		pre= JSON.stringify(distance)
 	h2 Documentation
 	p 
 		| This resource allows to query the distance reading of the 

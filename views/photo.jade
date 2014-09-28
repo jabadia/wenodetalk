@@ -3,7 +3,9 @@ extends ./layout.jade
 block content
 	h1 Arduino REST Server
 	pre= path
-	pre= JSON.stringify(light)
+	div 
+		b light: 
+		pre= JSON.stringify(light)
 	h2 Documentation
 	p 
 		| This resource allows to query the amount of light seen by the 
