@@ -57,7 +57,10 @@ var board = new five.Board(),
 	flex,
 	latestFlexReading,
 	minFlexReading = 5000, maxFlexReading = -5000,
-	leds = [];
+	leds = [],
+	photo,
+	latestPhotoReading,
+	minPhotoReading = 5000, maxPhotoReading = -5000;
 
 function initSensors()
 {
@@ -91,6 +94,18 @@ function initSensors()
 	leds.push(new five.Led(11));
 
 	leds.forEach(function(led){ led.off(); });
+
+	photo = new five.Sensor({
+		pin: "A0",
+		freq: '25'
+	});
+	photo.on('change', function()
+	{
+		latestPhotoReading = this.value;
+		minPhotoReading = Math.min(latestPhotoReading,minPhotoReading);
+		maxPhotoReading = Math.max(latestPhotoReading,maxPhotoReading);
+	})
+
 }
 
 function findLed(pin)
@@ -181,6 +196,13 @@ function serverPostLed(req,res)
 	renderView(req,res,"led.jade", data);
 }
 
+function serverGetPhoto(req,res)
+{
+	var data = {path:req.path};
+	data.light = scale(latestPhotoReading, [minPhotoReading, maxPhotoReading], [100,0]);
+	renderView(req,res,"photo.jade", data);
+}
+
 
 /* server init */
 
@@ -207,6 +229,7 @@ router.post('/servo', serverPostServo);
 router.get('/flex', serverGetFlex);
 router.get('/led/:pin', serverGetLed);
 router.post('/led/:pin', serverPostLed);
+router.get('/photo', serverGetPhoto);
 
 app.use('/', router);
 app.use(logErrors);

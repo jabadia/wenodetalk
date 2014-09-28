@@ -1,0 +1,32 @@
+extends ./layout.jade
+
+block content
+	h1 Arduino REST Server
+	pre= path
+	pre= JSON.stringify(light)
+	h2 Documentation
+	p 
+		| This resource allows to query the amount of light seen by the 
+		a(href='https://www.sparkfun.com/products/9088') photo sensor
+		| .
+	p 0 is no light, 100 is maximum amout of light
+	table.restapi
+		tr
+			th method
+			th uri
+			th parameters
+			th returns
+			th format
+		tr
+			td
+				code GET
+			td
+				code /photo
+			td
+			td
+				code { light: 0..100 }
+			td 
+				a(href='?f=html') html
+				|  | 
+				a(href='?f=json') json
+	img(src='https://cdn.sparkfun.com//assets/parts/2/4/6/2/09088-02-L.jpg', width='400px')

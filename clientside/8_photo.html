@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Photoresistor Sensor through REST</title>
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	<style>
+		#bar {
+			height: 30px;
+			background: blue;
+		}
+		#buttons
+		{
+			margin-top: 20px;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-8 col-md-offset-2">
+				<h1><span class="glyphicon glyphicon-adjust"></span> Photoresistor Sensor</h1>
+				<h2><span id="distance"></span> º</h2>
+				<div id="bar"></div>
+				<div id="buttons">
+				<button type="button" class="btn btn-default" id="start-measuring">Start</button>
+				<button type="button" class="btn btn-default" id="stop-measuring">Stop</button>
+				<div class="checkbox">
+					<label><input type="checkbox" id="use-smoothing" value="">Use smoothing: newValue = (newValue * 0.2 + oldValue * 0.8)</label>
+				</div>				
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<script>		
+		$(function()
+		{
+			console.log("ready!");
+
+			var intervalId;
+			var lastLight = 0;
+
+			function smooth(newValue, oldValue)
+			{
+				return newValue * 0.2 + oldValue * 0.8;				
+			}
+
+			function start()
+			{
+				stop();
+
+				intervalId = setInterval(function()
+				{
+					$.ajax({
+						url: 'http://localhost:3000/photo',
+						dataType: 'json'
+					}).done(function(data)
+					{
+						var useSmoothing = $('#use-smoothing').is(':checked');
+						var newLight = useSmoothing? smooth(parseFloat(data.light,10), lastLight) : parseFloat(data.light,10);
+						lastLight = newLight;
+						$("#distance").text(Math.floor(10 * newLight)/10);
+						var percent = 100 * newLight / 100.0;
+						$("#bar").css('width', percent + "%");
+
+						var grayLevel = Math.floor(percent * 255 / 100);
+						var color = 'rgb(' + grayLevel + ',' + grayLevel + ',' + grayLevel + ')';
+						$('body').css('background-color', color);
+						$('body').css('color', grayLevel < 128? "white" : "#333");
+					})
+
+				},100);				
+			}
+
+			function stop()
+			{
+				if( intervalId )
+				{
+					clearInterval(intervalId);
+					intervalId = null;
+				}
+			}
+
+			$('#start-measuring').click(start);
+			$('#stop-measuring').click(stop);
+			$('#distance').text("-");
+			$('#bar').css('width', '5px');
+
+		});
+	</script>
+</body>
+</html>
