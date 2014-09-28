@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Servo Motor through REST</title>
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="lib/bootstrap-slider.css">
+	<style>
+		#controls
+		{
+			margin-top: 20px;
+			padding: 20px;
+			background: #aaa;
+			border-radius: 10px;
+		}
+		.slider.slider-horizontal
+		{
+			width: 100%;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-8 col-md-offset-2">				
+				<h1><span class="glyphicon glyphicon-cog"></span> Servo Motor</h1>
+				<h2>Current Angle: <span id="angle"></span> º</h2>
+				<div id="controls">
+					<input id="servo-angle" data-slider-id='servo-angle-slider' type="text" data-slider-min="0" data-slider-max="180" data-slider-step="1" data-slider-value="90"/>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<script src="lib/bootstrap-slider.js"></script>
+	<script>		
+		$(function()
+		{
+			console.log("ready!");
+
+			var slider = $('#servo-angle').slider({
+				formatter: function(value) { return 'Current angle: ' + value; }
+			});
+
+			slider.on('slide', function(evt)
+			{
+				console.log(evt.value);
+
+				$.ajax({
+					type: 'POST',
+					url: 'http://localhost:3000/servo',
+					data: { position: evt.value },
+					dataType: 'json'
+				}).done(function(data)
+				{
+					$('#angle').text(data.position);
+				});
+			})
+
+			slider.slider('setValue',45,true);
+
+		});
+	</script>
+</body>
+</html>

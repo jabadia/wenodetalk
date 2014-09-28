@@ -23,7 +23,7 @@ function logErrors(err, req, res, next)
 function renderView(req,res,view,data)
 {
 	console.log(data);
-
+	
 	var f = req.query.f || req.accepts(['html','json']);
 
 	switch(f)
@@ -43,7 +43,8 @@ function renderView(req,res,view,data)
 
 var board = new five.Board(),
 	distance,
-	latestDistanceReading;
+	latestDistanceReading,
+	servo;
 
 function initSensors()
 {
@@ -57,6 +58,9 @@ function initSensors()
 	{
 		latestDistanceReading = { cm: this.cm }
 	})
+
+	servo = new five.Servo(9);
+	servo.to(90);
 }
 
 function serverRoot(req,res)
@@ -70,6 +74,24 @@ function serverDistance(req,res)
 	var data = {path:req.path};
 	data.distance = latestDistanceReading;
 	renderView(req,res,"distance.jade", data);
+}
+
+function serverGetServo(req,res)
+{
+	var data = {path:req.path};
+	data.position = servo.position;
+	renderView(req,res,"servo.jade", data);
+}
+
+function serverPostServo(req,res)
+{
+	var newPosition = parseFloat(req.body.position,10);
+	console.log("moving servo to ", newPosition)
+	servo.to(newPosition);
+
+	var data = {path:req.path};
+	data.position = servo.position;
+	renderView(req,res,"servo.jade", data);
 }
 
 
@@ -93,6 +115,8 @@ var router = express.Router();
 
 router.get('', serverRoot);
 router.get('/distance', serverDistance);
+router.get('/servo', serverGetServo);
+router.post('/servo', serverPostServo);
 
 app.use('/', router);
 app.use(logErrors);

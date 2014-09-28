@@ -1,0 +1,42 @@
+extends ./layout.jade
+
+block content
+	h1 Arduino REST Server
+	pre= path
+	pre= JSON.stringify(position)
+	h2 Documentation
+	p 
+		| This resource allows to query and control the position (angle) of the 
+		a(href='https://www.sparkfun.com/products/9065') servo motor
+		| .
+	p The position is returned and specified in degrees in a 0º to 180º range, although the real range is closer to 15º..165º
+	table.restapi
+		tr
+			th method
+			th uri
+			th parameters
+			th returns
+			th format
+		tr
+			td
+				code GET
+			td
+				code /servo
+			td
+			td
+				code { position: new-position }
+			td 
+				a(href='?f=html') html
+				|  | 
+				a(href='?f=json') json
+		tr
+			td 
+				code POST
+			td 
+				code /servo
+			td 
+				code { position: new-position }
+			td
+				code { position: new-position }
+			td 
+	img(src='http://node-ardx.org/images/parts/SERVO.jpg')
