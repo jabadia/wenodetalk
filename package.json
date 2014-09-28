@@ -10,5 +10,9 @@
   "license": "BSD-2-Clause",
   "dependencies": {
     "johnny-five": "~0.8.11",
+    "express": "~4.9.5",
+    "body-parser": "~1.9.0",
+    "method-override": "~2.2.0",
+    "jade": "~1.7.0"
   }
 }

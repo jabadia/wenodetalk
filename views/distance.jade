@@ -1,0 +1,32 @@
+extends ./layout.jade
+
+block content
+	h1 Arduino REST Server
+	pre= path
+	pre= JSON.stringify(distance)
+	h2 Documentation
+	p 
+		| This resource allows to query the distance reading of the 
+		a(href='https://www.sparkfun.com/products/242') IR distance sensor
+		| .
+	p Distance is returned in cm with a measuring range between 10cm and 80cm
+	table.restapi
+		tr
+			th method
+			th uri
+			th parameters
+			th returns
+			th format
+		tr
+			td
+				code GET
+			td
+				code /distance
+			td
+			td
+				code { distance: distance-in-cm }
+			td 
+				a(href='?f=html') html
+				|  | 
+				a(href='?f=json') json
+	img(src='https://content.solarbotics.com/products/photos/05ac29810b924acac8758b517083196f/lrg/35235_img_4065r.jpg', width='400px')

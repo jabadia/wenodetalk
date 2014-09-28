@@ -1,0 +1,17 @@
+doctype html
+html
+	head
+		title Arduino REST Server
+		link(rel='stylesheet',href='//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css')
+		style(type='text/css').
+			table.restapi td, table.restapi th { padding: 5px; border: 1px solid #eee; }
+			table.restapi th { text-align: left; padding-right: 50px; }
+	body
+		div.container
+			div.row
+				div.col-md-8.col-md-offset-2
+					a(href='/')
+						span.glyphicon.glyphicon-home
+						|  home
+					block content
+

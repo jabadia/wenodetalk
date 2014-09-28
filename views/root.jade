@@ -1,0 +1,13 @@
+extends ./layout.jade
+
+block content
+	h1 Arduino REST Server 
+	pre= path
+	h2 Documentation
+	p This is the REST endpoint to control my Arduino kit
+	ul
+		li
+			a(href='distance') distance
+		li
+			a(href='servo') servo
+	img(src='http://node-ardx.org/images/ARDX-cover.jpg')
