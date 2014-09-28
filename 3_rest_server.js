@@ -29,6 +29,7 @@ function renderView(req,res,view,data)
 	switch(f)
 	{
 		case 'html':
+			data.path = req.path;
 			res.render(view, data);
 			break;
 		case 'json':
@@ -116,20 +117,20 @@ function findLed(pin)
 
 function serverRoot(req,res)
 {
-	var data = {path:req.path};
+	var data = {};
 	renderView(req,res,"root.jade", data);
 }
 
 function serverDistance(req,res)
 {
-	var data = {path:req.path};
+	var data = {};
 	data.distance = latestDistanceReading;
 	renderView(req,res,"distance.jade", data);
 }
 
 function serverGetServo(req,res)
 {
-	var data = {path:req.path};
+	var data = {};
 	data.position = servo.position;
 	renderView(req,res,"servo.jade", data);
 }
@@ -140,14 +141,14 @@ function serverPostServo(req,res)
 	console.log("moving servo to ", newPosition)
 	servo.to(newPosition);
 
-	var data = {path:req.path};
+	var data = {};
 	data.position = servo.position;
 	renderView(req,res,"servo.jade", data);
 }
 
 function serverGetFlex(req,res)
 {
-	var data = {path:req.path};
+	var data = {};
 	data.flex = scale(latestFlexReading, [minFlexReading, maxFlexReading], [0,90]);
 	renderView(req,res,"flex.jade", data);
 }
@@ -155,7 +156,7 @@ function serverGetFlex(req,res)
 function serverGetLed(req,res)
 {
 	var pin = parseInt(req.params.pin);
-	var data = {path:req.path};
+	var data = {};
 
 	var led = findLed(pin);
 
@@ -175,7 +176,7 @@ function serverPostLed(req,res)
 {
 	var pin = parseInt(req.params.pin);
 	var newState = req.body.state;
-	var data = {path:req.path};
+	var data = {};
 
 	var led = findLed(pin);
 
@@ -198,7 +199,7 @@ function serverPostLed(req,res)
 
 function serverGetPhoto(req,res)
 {
-	var data = {path:req.path};
+	var data = {};
 	data.light = scale(latestPhotoReading, [minPhotoReading, maxPhotoReading], [100,0]);
 	renderView(req,res,"photo.jade", data);
 }
