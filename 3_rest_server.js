@@ -56,7 +56,8 @@ var board = new five.Board(),
 	servo,
 	flex,
 	latestFlexReading,
-	minFlexReading = 5000, maxFlexReading = -5000;
+	minFlexReading = 5000, maxFlexReading = -5000,
+	leds = [];
 
 function initSensors()
 {
@@ -72,7 +73,7 @@ function initSensors()
 	})
 
 	servo = new five.Servo(9);
-	servo.to(90);
+	servo.to(42);
 
 	flex = new five.Sensor({
 		pin: "A3",
@@ -84,6 +85,18 @@ function initSensors()
 		minFlexReading = Math.min(latestFlexReading,minFlexReading);
 		maxFlexReading = Math.max(latestFlexReading,maxFlexReading);
 	})
+
+	leds.push(new five.Led(13));
+	leds.push(new five.Led(12));
+	leds.push(new five.Led(11));
+
+	leds.forEach(function(led){ led.off(); });
+}
+
+function findLed(pin)
+{
+	var led = leds.filter(function(led){ return led.pin == pin; });
+	return led.length == 1? led[0] : null;
 }
 
 function serverRoot(req,res)
@@ -124,6 +137,49 @@ function serverGetFlex(req,res)
 	renderView(req,res,"flex.jade", data);
 }
 
+function serverGetLed(req,res)
+{
+	var pin = parseInt(req.params.pin);
+	var data = {path:req.path};
+
+	var led = findLed(pin);
+
+	if( led )
+	{
+		data.state = led.value? "on" : "off";
+	}
+	else
+	{
+		data.error = "Can't find LED in pin " + pin;
+		data.state = "unknown";
+	}
+	renderView(req,res,"led.jade", data);
+}
+
+function serverPostLed(req,res)
+{
+	var pin = parseInt(req.params.pin);
+	var newState = req.body.state;
+	var data = {path:req.path};
+
+	var led = findLed(pin);
+
+	if( led )
+	{
+		if( newState == "on")
+			led.on();
+		else
+			led.off();
+
+		data.state = led.value? "on" : "off";
+	}
+	else
+	{
+		data.error = "Can't find LED in pin " + pin;
+		data.state = "unknown";
+	}
+	renderView(req,res,"led.jade", data);
+}
 
 
 /* server init */
@@ -149,6 +205,8 @@ router.get('/distance', serverDistance);
 router.get('/servo', serverGetServo);
 router.post('/servo', serverPostServo);
 router.get('/flex', serverGetFlex);
+router.get('/led/:pin', serverGetLed);
+router.post('/led/:pin', serverPostLed);
 
 app.use('/', router);
 app.use(logErrors);

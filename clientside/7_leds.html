@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Control LEDs through REST</title>
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	<style>
+		#buttons
+		{
+			margin-top: 20px;
+		}
+		#buttons th, #buttons td
+		{
+			width: 80px;
+			text-align: center;
+			padding: 5px;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-8 col-md-offset-2">
+				<h1><span class="glyphicon glyphicon-flash"></span> Control LEDs</h1>
+				<table id="buttons">
+					<tr>
+						<th>Pin 11</th>
+						<th>Pin 12</th>
+						<th>Pin 13</th>
+					</tr>
+					<tr>
+						<td><button type="button" class="btn btn-default" data-pin="11" data-state="on">On</button></td>
+						<td><button type="button" class="btn btn-default" data-pin="12" data-state="on">On</button></td>
+						<td><button type="button" class="btn btn-default" data-pin="13" data-state="on">On</button></td>
+					</tr>
+					<tr>
+						<td><button type="button" class="btn btn-default" data-pin="11" data-state="off">Off</button></td>
+						<td><button type="button" class="btn btn-default" data-pin="12" data-state="off">Off</button></td>
+						<td><button type="button" class="btn btn-default" data-pin="13" data-state="off">Off</button></td>
+					</tr>				
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<script>		
+		$(function()
+		{
+			console.log("ready!");
+
+			var pins = [11,12,13];
+
+			function updateButtonClasses(pin,state)
+			{
+				$('[data-pin=' + pin + ']').removeClass('btn-primary btn-default');
+				$('[data-pin=' + pin + '][data-state=' + state + ']').addClass('btn-primary');
+				$('[data-pin=' + pin + '][data-state!=' + state + ']').addClass('btn-default');				
+			}
+
+			function updateLedState(pin)
+			{
+				$.ajax({
+					url: 'http://localhost:3000/led/' + pin,
+					dataType: 'json'
+				}).done(function(data)
+				{
+					updateButtonClasses(pin,data.state);
+				});
+			}
+
+			$('[type=button]').click(function(evt)
+			{
+				var pin = $(this).attr('data-pin');
+				var state = $(this).attr('data-state');
+
+				$.ajax({
+					type: 'POST',
+					url: 'http://localhost:3000/led/' + pin,
+					data: { state: state },
+					dataType: 'json'
+				}).done(function(data)
+				{
+					updateButtonClasses(pin,data.state);
+				});
+			})
+
+			pins.forEach(updateLedState);
+		});
+	</script>
+</body>
+</html>

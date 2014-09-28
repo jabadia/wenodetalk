@@ -1,0 +1,45 @@
+extends ./layout.jade
+
+block content
+	h1 Arduino REST Server
+	pre= path
+	pre= JSON.stringify(state)
+	if( error )
+		div.alert.alert-danger
+			span.glyphicon.glyphicon-exclamation-sign
+			|  #{error}
+	h2 Documentation
+	p This resource allows to query and control the state of leds connected to the board
+	table.restapi
+		tr
+			th method
+			th uri
+			th parameters
+			th returns
+			th format
+		tr
+			td
+				code GET
+			td
+				code /led/:pin
+			td
+			td
+				code { state: "on" | "off" }
+			td 
+				a(href='?f=html') html
+				|  | 
+				a(href='?f=json') json
+		tr
+			td
+				code POST
+			td
+				code /led/:pin
+			td
+				code { state: "on" | "off" }
+			td
+				code { state: "on" | "off" }
+			td 
+				a(href='?f=html') html
+				|  | 
+				a(href='?f=json') json
+	img(src='https://cdn.sparkfun.com//assets/parts/3/4/0/7/09594-01.jpg', width='400px')
