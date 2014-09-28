@@ -82,9 +82,14 @@ function initSensors()
 
 	setInterval(function()
 	{
-		latestDistanceReading.cm = 20.0 + Math.random() * 40.0;
-		latestPhotoReading = 10 + Math.random() * 90.0;
-		latestFlexReading = 10 + Math.random() * 80.0;
+		latestDistanceReading.cm += (Math.random()-0.5)*8.0;
+		latestPhotoReading += (Math.random()-0.5)*8.0;
+		latestFlexReading += (Math.random()-0.5)*8.0;
+
+		latestDistanceReading.cm = Math.min(100, Math.max(20, latestDistanceReading.cm));
+		latestPhotoReading =  Math.min(100, Math.max(0, latestPhotoReading));
+		latestFlexReading =  Math.min(90, Math.max(0, latestFlexReading));
+
 	}, 25);
 }
 
