@@ -39,12 +39,24 @@ function renderView(req,res,view,data)
 	}
 }
 
+function scale(value,inrange,outrange)
+{
+	var normalized = (value-inrange[0]) / (inrange[1]-inrange[0]);
+	var outvalue = normalized * (outrange[1]-outrange[0]) + outrange[0];
+	return outvalue;
+	// console.log(value, normalized, inrange);
+	// return normalized;
+}
+
 /* server functions */
 
 var board = new five.Board(),
 	distance,
 	latestDistanceReading,
-	servo;
+	servo,
+	flex,
+	latestFlexReading,
+	minFlexReading = 5000, maxFlexReading = -5000;
 
 function initSensors()
 {
@@ -61,6 +73,17 @@ function initSensors()
 
 	servo = new five.Servo(9);
 	servo.to(90);
+
+	flex = new five.Sensor({
+		pin: "A3",
+		freq: '25'
+	});
+	flex.on('change', function()
+	{
+		latestFlexReading = this.value;
+		minFlexReading = Math.min(latestFlexReading,minFlexReading);
+		maxFlexReading = Math.max(latestFlexReading,maxFlexReading);
+	})
 }
 
 function serverRoot(req,res)
@@ -94,6 +117,14 @@ function serverPostServo(req,res)
 	renderView(req,res,"servo.jade", data);
 }
 
+function serverGetFlex(req,res)
+{
+	var data = {path:req.path};
+	data.flex = scale(latestFlexReading, [minFlexReading, maxFlexReading], [0,90]);
+	renderView(req,res,"flex.jade", data);
+}
+
+
 
 /* server init */
 
@@ -117,6 +148,7 @@ router.get('', serverRoot);
 router.get('/distance', serverDistance);
 router.get('/servo', serverGetServo);
 router.post('/servo', serverPostServo);
+router.get('/flex', serverGetFlex);
 
 app.use('/', router);
 app.use(logErrors);

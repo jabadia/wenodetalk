@@ -1,0 +1,32 @@
+extends ./layout.jade
+
+block content
+	h1 Arduino REST Server
+	pre= path
+	pre= JSON.stringify(flex)
+	h2 Documentation
+	p 
+		| This resource allows to query the bend angle of the 
+		a(href='https://www.sparkfun.com/products/10264') flex sensor
+		| .
+	p Bend angle is returned in degrees, 0º is no bend, 90º is fully bent
+	table.restapi
+		tr
+			th method
+			th uri
+			th parameters
+			th returns
+			th format
+		tr
+			td
+				code GET
+			td
+				code /flex
+			td
+			td
+				code { flex: angle-in-degrees }
+			td 
+				a(href='?f=html') html
+				|  | 
+				a(href='?f=json') json
+	img(src='https://cdn.sparkfun.com//assets/parts/4/6/2/6/10264-01.jpg', width='400px')
