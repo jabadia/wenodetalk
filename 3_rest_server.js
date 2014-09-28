@@ -51,8 +51,7 @@ function scale(value,inrange,outrange)
 
 /* server functions */
 
-var board = new five.Board(),
-	distance,
+var distance,
 	latestDistanceReading,
 	servo,
 	flex,
@@ -65,6 +64,28 @@ var board = new five.Board(),
 
 function initSensors()
 {
+	servo = { position: 0 };
+
+	leds.push({pin:11, value:0});
+	leds.push({pin:12, value:0});
+	leds.push({pin:13, value:0});
+
+	latestDistanceReading = { cm: 20.0 };
+
+	latestFlexReading = 45.0;
+	minFlexReading = 0;
+	maxFlexReading = 90;
+
+	latestPhotoReading = 50.0;
+	minPhotoReading = 0;
+	maxPhotoReading = 100;
+
+	setInterval(function()
+	{
+		latestDistanceReading.cm = 20.0 + Math.random() * 40.0;
+		latestPhotoReading = 10 + Math.random() * 90.0;
+		latestFlexReading = 10 + Math.random() * 80.0;
+	}, 25);
 }
 
 function serverRoot(req,res)
@@ -77,7 +98,7 @@ function serverRoot(req,res)
 function serverDistance(req,res)
 {
 	var data = {};
-	data.distance = { cm: 20.0 + Math.random() * 40.0 };
+	data.distance = latestDistanceReading;
 	renderView(req,res,"distance.jade", data);
 }
 
