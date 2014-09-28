@@ -118,6 +118,7 @@ function findLed(pin)
 function serverRoot(req,res)
 {
 	var data = {};
+	data.msg = "Welcome to the REST server for my Arduino Kit";
 	renderView(req,res,"root.jade", data);
 }
 

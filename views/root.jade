@@ -3,6 +3,10 @@ extends ./layout.jade
 block content
 	h1 Arduino REST Server 
 	pre= path
+	if( msg )
+		div.alert.alert-info
+			span.glyphicon.glyphicon-info-sign
+			|  #{msg}
 	h2 Documentation
 	p This is the REST endpoint to control my Arduino kit
 	ul
