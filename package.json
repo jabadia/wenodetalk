@@ -1,0 +1,14 @@
+{
+  "name": "wenodetalk",
+  "version": "0.0.0",
+  "description": "Source Code for WeNode talk in Barcelona",
+  "main": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Javier Abadía",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "johnny-five": "~0.8.11",
+  }
+}
