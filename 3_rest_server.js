@@ -65,54 +65,6 @@ var board = new five.Board(),
 
 function initSensors()
 {
-	distance = new five.IR.Distance({
-		device: 'GP2Y0A02YK0F',
-		pin: 'A5',
-		freq: '100'
-	});
-
-	distance.on('data', function()
-	{
-		latestDistanceReading = { cm: this.cm }
-	})
-
-	servo = new five.Servo(9);
-	servo.to(42);
-
-	flex = new five.Sensor({
-		pin: "A3",
-		freq: '25'
-	});
-	flex.on('change', function()
-	{
-		latestFlexReading = this.value;
-		minFlexReading = Math.min(latestFlexReading,minFlexReading);
-		maxFlexReading = Math.max(latestFlexReading,maxFlexReading);
-	})
-
-	leds.push(new five.Led(13));
-	leds.push(new five.Led(12));
-	leds.push(new five.Led(11));
-
-	leds.forEach(function(led){ led.off(); });
-
-	photo = new five.Sensor({
-		pin: "A0",
-		freq: '25'
-	});
-	photo.on('change', function()
-	{
-		latestPhotoReading = this.value;
-		minPhotoReading = Math.min(latestPhotoReading,minPhotoReading);
-		maxPhotoReading = Math.max(latestPhotoReading,maxPhotoReading);
-	})
-
-}
-
-function findLed(pin)
-{
-	var led = leds.filter(function(led){ return led.pin == pin; });
-	return led.length == 1? led[0] : null;
 }
 
 function serverRoot(req,res)
@@ -125,7 +77,7 @@ function serverRoot(req,res)
 function serverDistance(req,res)
 {
 	var data = {};
-	data.distance = latestDistanceReading;
+	data.distance = { cm: 20.0 + Math.random() * 40.0 };
 	renderView(req,res,"distance.jade", data);
 }
 
@@ -140,7 +92,7 @@ function serverPostServo(req,res)
 {
 	var newPosition = parseFloat(req.body.position,10);
 	console.log("moving servo to ", newPosition)
-	servo.to(newPosition);
+	servo.position = newPosition;
 
 	var data = {};
 	data.position = servo.position;
@@ -244,8 +196,5 @@ app.use('/', router);
 app.use(logErrors);
 app.use(errorHandler);
 
-board.on('ready', function()
-{
-	initSensors();
-	app.listen(3000, function() {	console.log("listening on http://localhost:3000"); });	
-})
+initSensors();
+app.listen(3000, function() {	console.log("listening on http://localhost:3000"); });	
