@@ -19,7 +19,7 @@
 		}
 		#radar-canvas
 		{
-			width: 100%; /*750px*/
+			width: 750px; /*750px*/
 			height: 400px;
 			background: #ddd
 		}
@@ -156,14 +156,14 @@
 				// move servo to desired angle
 				$.ajax({
 					type: 'POST',
-					url: 'http://localhost:3000/servo',
+					url: 'http://192.168.1.33:3000/servo',
 					data: { position: parseFloat(radarAngle,10) },
 					dataType: 'json'
 				}).done(function(servoData)
 				{
 					// get distance reading
 					$.ajax({
-						url: 'http://localhost:3000/distance',
+						url: 'http://192.168.1.33:3000/distance',
 						dataType: 'json'
 					}).done(function(distanceData)
 					{
