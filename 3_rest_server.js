@@ -1,7 +1,6 @@
 "use strict";
 
-var five 			= require('johnny-five'),
-	express         = require("express"),
+var express         = require("express"),
 	bodyParser      = require("body-parser"),
 	methodOverride  = require("method-override");
 
