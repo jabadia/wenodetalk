@@ -12,6 +12,7 @@ module.factory('ArduinoSensors', function($resource)
 module.factory('ArduinoLeds', function($resource)
 {
 	return $resource('http://localhost:3000/led/:pin',{}, {
+		getLeds:  { method: 'GET', params: {pin:''}, isArray: false},
 		getState: { method: 'GET', params: {}, isArray:false },
 		setState: { method: 'POST', params: {}, isArray: false }
 	});

@@ -154,6 +154,12 @@ function serverGetFlex(req,res)
 	renderView(req,res,"flex.jade", data);
 }
 
+function serverGetLeds(req,res)
+{
+	var data = { leds: leds.map(function(led){ return led.pin; }) };
+	renderView(req,res,"led.jade",data);
+}
+
 function serverGetLed(req,res)
 {
 	var pin = parseInt(req.params.pin);
@@ -229,6 +235,7 @@ router.get('/distance', serverDistance);
 router.get('/servo', serverGetServo);
 router.post('/servo', serverPostServo);
 router.get('/flex', serverGetFlex);
+router.get('/led/', serverGetLeds);
 router.get('/led/:pin', serverGetLed);
 router.post('/led/:pin', serverPostLed);
 router.get('/photo', serverGetPhoto);

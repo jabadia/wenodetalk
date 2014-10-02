@@ -4,8 +4,12 @@ block content
 	h1 Arduino REST Server
 	pre= path
 	div 
-		b state: 
-		pre= JSON.stringify(state)
+		if( leds )
+			b leds: 
+			pre= JSON.stringify(leds)
+		else
+			b state: 
+			pre= JSON.stringify(state)			
 	if( error )
 		div.alert.alert-danger
 			span.glyphicon.glyphicon-exclamation-sign
@@ -19,6 +23,18 @@ block content
 			th parameters
 			th returns
 			th format
+		tr
+			td
+				code GET
+			td
+				code /led
+			td
+			td
+				code {leds: [ pin1, pin2, ... ]}
+			td 
+				a(href='?f=html') html
+				|  | 
+				a(href='?f=json') json
 		tr
 			td
 				code GET
