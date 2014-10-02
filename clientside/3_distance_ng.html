@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" ng-app='3_distance'>
+<head>
+	<meta charset="UTF-8">
+	<title>Distance Sensor through REST</title>
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+</head>
+<body>
+	<div class="container" ng-controller='MainCtrl'>
+		<div class="row">
+			<div class="col-md-8 col-md-offset-2">
+				<h1><span class="glyphicon glyphicon-export"></span> Distance Sensor</h1>
+				<h2>{{distance}} cm</h2>
+				<progressbar class="progress-striped" type="success" value="distance" min="0" max="80">
+				</progressbar>
+				<button type="button" class="btn btn-default" ng-click="start();">Start</button>
+				<button type="button" class="btn btn-default" ng-click="stop();">Stop</button>
+				<div class="checkbox">
+					<label><input type="checkbox" ng-model="useSmoothing">Use smoothing: newValue = (newValue * 0.2 + oldValue * 0.8)</label>
+				</div>				
+			</div>
+		</div>
+	</div>
+
+	<script src="../bower_components/angular/angular.min.js"></script>
+	<script src="../bower_components/angular-resource/angular-resource.min.js"></script>
+	<script src="../bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
+	<script src="../bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+	<script src="ArduinoRest.js"></script>
+	<script>
+	var app = angular.module('3_distance', ['ui.bootstrap', 'ngResource', 'ArduinoRest']);
+
+	app.controller('MainCtrl',function($scope,$interval, ArduinoRest)
+	{
+		$scope.distance = "0.0";
+		$scope.useSmoothing = true;
+
+		var interval = null;
+		var lastDistance = 0;
+
+		function smooth(newValue, oldValue)
+		{
+			return newValue * 0.2 + oldValue * 0.8;				
+		}
+
+		$scope.start = function()
+		{
+			console.log("start()");
+			$scope.stop();
+
+			interval = $interval(function()
+			{
+				ArduinoRest.getDistance({},function(data)
+				{
+					var newDistance = parseFloat(data.distance.cm,10);
+					$scope.useSmoothing && (newDistance = smooth(newDistance, lastDistance));
+					$scope.distance = Math.floor(10 * newDistance)/10;
+					lastDistance = newDistance;
+				});
+
+			},100);
+		}
+
+		$scope.stop = function()
+		{
+			console.log("stop()");
+			$interval.cancel(interval);
+			lastDistance = 0;
+		}
+	});
+	
+	</script>
+</body>
+</html>
