@@ -24,7 +24,7 @@
 		<div class="row">
 			<div class="col-md-8 col-md-offset-2">				
 				<h1><span class="glyphicon glyphicon-cog"></span> Servo Motor</h1>
-				<h2>Current Angle: {{servo.position}} º</h2>
+				<h2>Current Angle: {{servo.position|number:0}} º</h2>
 				<div id="controls">
 					<slider ng-model="servo.position" min="0" max="180" step="1"/>
 				</div>
