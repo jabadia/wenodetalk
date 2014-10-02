@@ -4,7 +4,8 @@ module.factory('ArduinoSensors', function($resource)
 {
 	return $resource('http://localhost:3000/:sensor', {}, {
 		getDistance: { method: 'GET', params: {sensor:'distance'}, isArray:false },
-		getFlex:     { method: 'GET', params: {sensor:'flex'}, isArray:false }
+		getFlex:     { method: 'GET', params: {sensor:'flex'}, isArray:false },
+		getLight:    { method: 'GET', params: {sensor:'photo'}, isArray: false }
 	});
 });
 

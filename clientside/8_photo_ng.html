@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="8_photo">
+<head>
+	<meta charset="UTF-8">
+	<title>Photoresistor Sensor through REST</title>
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+</head>
+<body ng-controller='MainCtrl' ng-style="backgroundColorStyle">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-8 col-md-offset-2">
+				<h1><span class="glyphicon glyphicon-adjust"></span> Photoresistor Sensor</h1>
+				<h2>{{light|number:1}}</h2>
+				<progressbar class="progress-striped" type="success" value="light" min="0" max="100">
+				</progressbar>
+				<button type="button" class="btn btn-default" ng-click="start();">Start</button>
+				<button type="button" class="btn btn-default" ng-click="stop();">Stop</button>
+				<div class="checkbox">
+					<label><input type="checkbox" ng-model="useSmoothing">Use smoothing: newValue = (newValue * 0.2 + oldValue * 0.8)</label>
+				</div>				
+			</div>
+		</div>
+	</div>
+
+	<script src="../bower_components/angular/angular.min.js"></script>
+	<script src="../bower_components/angular-resource/angular-resource.min.js"></script>
+	<script src="../bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
+	<script src="../bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+	<script src="ArduinoRest.js"></script>
+	<script>
+	var app = angular.module('8_photo', ['ui.bootstrap', 'ArduinoRest']);
+
+	app.controller('MainCtrl',function($scope, $interval, ArduinoSensors)
+	{
+		$scope.light = 100;
+		$scope.useSmoothing = true;
+		$scope.backgroundColorStyle = { 'background-color': "white" };
+
+		var interval = null;
+		var lastLight = 0;
+
+		function smooth(newValue, oldValue)
+		{
+			return newValue * 0.2 + oldValue * 0.8;				
+		}
+
+		$scope.start = function()
+		{
+			console.log("start()");
+			$scope.stop();
+
+			interval = $interval(function()
+			{
+				ArduinoSensors.getLight({},function(data)
+				{
+					var newLight = data.light;
+					$scope.useSmoothing && (newLight = smooth(newLight, lastLight));
+					$scope.light = lastLight = newLight;
+
+					var grayLevel = Math.floor(newLight * 255 / 100);
+					var color = 'rgb(' + grayLevel + ',' + grayLevel + ',' + grayLevel + ')';
+
+					$scope.backgroundColorStyle = { 
+						'background-color' : color,
+						'color': grayLevel < 128? "white" : "#333" 
+					};
+				});
+
+			},100);
+		}
+
+		$scope.stop = function()
+		{
+			console.log("stop()");
+			$interval.cancel(interval);
+			lastLight = 0;
+		}
+	});
+	
+
+	</script>
+</body>
+</html>
