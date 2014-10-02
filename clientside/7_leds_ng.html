@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" ng-app='7_leds'>
+<head>
+	<meta charset="UTF-8">
+	<title>Control LEDs through REST</title>
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	<style>
+		#buttons
+		{
+			margin-top: 20px;
+		}
+		#buttons th, #buttons td
+		{
+			width: 80px;
+			text-align: center;
+			padding: 5px;
+		}
+	</style>
+</head>
+<body>
+	<div class="container" ng-controller='MainCtrl'>
+		<div class="row">
+			<div class="col-md-8 col-md-offset-2">
+				<h1><span class="glyphicon glyphicon-flash"></span> Control LEDs</h1>
+				<table id="buttons">
+					<tr>
+						<th ng-repeat="pin in pins">Pin {{pin}}</th>
+					</tr>
+					<tr>
+						<td ng-repeat="pin in pins">
+							<button type="button" class="btn btn-default" 
+								ng-class="{'btn-primary': led[pin].state=='on'}" 
+								ng-click="buttonClick(pin,'on');">
+								<span class="glyphicon glyphicon-ok"></span>&nbsp;
+								On
+							</button>
+						</td>							
+					</tr>
+					<tr>
+						<td ng-repeat="pin in pins">
+							<button type="button" class="btn btn-default" 
+								ng-class="{'btn-primary': led[pin].state!='on'}" 
+								ng-click="buttonClick(pin,'off');">
+								<span class="glyphicon glyphicon-remove"></span>&nbsp;
+								Off
+							</button>
+						</td>							
+					</tr>				
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<script src="../bower_components/angular/angular.min.js"></script>
+	<script src="../bower_components/angular-resource/angular-resource.min.js"></script>
+	<script src="../bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
+	<script src="../bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+	<script src="ArduinoRest.js"></script>
+	<script>		
+		var app = angular.module('7_leds', ['ui.bootstrap', 'ArduinoRest']);
+		app.controller('MainCtrl',function($scope, ArduinoLeds)
+		{
+			$scope.pins = [11,12,13];
+			$scope.led = {}
+
+			$scope.pins.forEach(function(pin)
+			{				
+				$scope.led[pin] = ArduinoLeds.getState({pin:pin});
+			});
+
+			$scope.buttonClick = function(pin,newState)
+			{
+				$scope.led[pin] = ArduinoLeds.setState({pin: pin}, {state: newState});
+			}
+		});
+	</script>
+</body>
+</html>

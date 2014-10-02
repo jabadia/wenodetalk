@@ -28,9 +28,9 @@
 	<script src="../bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
 	<script src="ArduinoRest.js"></script>
 	<script>
-	var app = angular.module('3_distance', ['ui.bootstrap', 'ngResource', 'ArduinoRest']);
+	var app = angular.module('3_distance', ['ui.bootstrap', 'ArduinoRest']);
 
-	app.controller('MainCtrl',function($scope,$interval, ArduinoRest)
+	app.controller('MainCtrl',function($scope, $interval, ArduinoSensors)
 	{
 		$scope.distance = "0.0";
 		$scope.useSmoothing = true;
@@ -50,7 +50,7 @@
 
 			interval = $interval(function()
 			{
-				ArduinoRest.getDistance({},function(data)
+				ArduinoSensors.getDistance({},function(data)
 				{
 					var newDistance = parseFloat(data.distance.cm,10);
 					$scope.useSmoothing && (newDistance = smooth(newDistance, lastDistance));
