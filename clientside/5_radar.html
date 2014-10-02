@@ -153,17 +153,18 @@
 
 			function getRadarReading(cb)
 			{
+				var url = location.protocol + "//" + location.hostname + ':3000';
 				// move servo to desired angle
 				$.ajax({
 					type: 'POST',
-					url: 'http://192.168.1.33:3000/servo',
+					url: url + '/servo',
 					data: { position: parseFloat(radarAngle,10) },
 					dataType: 'json'
 				}).done(function(servoData)
 				{
 					// get distance reading
 					$.ajax({
-						url: 'http://192.168.1.33:3000/distance',
+						url: url + '/distance',
 						dataType: 'json'
 					}).done(function(distanceData)
 					{
