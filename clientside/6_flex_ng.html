@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="6_flex">
+<head>
+	<meta charset="UTF-8">
+	<title>Flex Sensor through REST</title>
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+</head>
+<body>
+	<div class="container" ng-controller='MainCtrl'>
+		<div class="row">
+			<div class="col-md-8 col-md-offset-2">
+				<h1><span class="glyphicon glyphicon-random"></span> Flex Sensor</h1>
+				<h2>{{flex}} º</h2>
+				<progressbar class="progress-striped" type="success" value="flex" min="0" max="90">
+				</progressbar>
+				<button type="button" class="btn btn-default" ng-click="start();">Start</button>
+				<button type="button" class="btn btn-default" ng-click="stop();">Stop</button>
+				<div class="checkbox">
+					<label><input type="checkbox" ng-model="useSmoothing">Use smoothing: newValue = (newValue * 0.2 + oldValue * 0.8)</label>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="../bower_components/angular/angular.min.js"></script>
+	<script src="../bower_components/angular-resource/angular-resource.min.js"></script>
+	<script src="../bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
+	<script src="../bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+	<script src="ArduinoRest.js"></script>
+	<script>
+	var app = angular.module('6_flex', ['ui.bootstrap', 'ArduinoRest']);
+
+	app.controller('MainCtrl',function($scope, $interval, ArduinoSensors)
+	{
+		$scope.flex = "0.0";
+		$scope.useSmoothing = true;
+
+		var interval = null;
+		var lastFlex = 0;
+
+		function smooth(newValue, oldValue)
+		{
+			return newValue * 0.2 + oldValue * 0.8;				
+		}
+
+		$scope.start = function()
+		{
+			console.log("start()");
+			$scope.stop();
+
+			interval = $interval(function()
+			{
+				ArduinoSensors.getFlex({},function(data)
+				{
+					var newFlex = parseFloat(data.flex,10);
+					$scope.useSmoothing && (newFlex = smooth(newFlex, lastFlex));
+					$scope.flex = Math.floor(10 * newFlex)/10;
+					lastFlex = newFlex;
+				});
+
+			},100);
+		}
+
+		$scope.stop = function()
+		{
+			console.log("stop()");
+			$interval.cancel(interval);
+			lastFlex = 0;
+		}
+	});
+	</script>
+</body>
+</html>
