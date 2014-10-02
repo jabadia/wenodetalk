@@ -16,3 +16,11 @@ module.factory('ArduinoLeds', function($resource)
 	});
 });
 
+module.factory('ArduinoServo', function($resource)
+{
+	return $resource('http://localhost:3000/servo',{}, {
+		getPosition: { method: 'GET', params: {}, isArray:false },
+		setPosition: { method: 'POST', params: {}, isArray: false }
+	});
+});
+

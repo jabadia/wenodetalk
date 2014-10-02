@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" ng-app='4_servo'>
+<head>
+	<meta charset="UTF-8">
+	<title>Servo Motor through REST</title>
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="../bower_components/seiyria-bootstrap-slider/dist/css/bootstrap-slider.css">
+	<style>
+		#controls
+		{
+			margin-top: 20px;
+			padding: 20px;
+			background: #aaa;
+			border-radius: 10px;
+		}
+		.slider.slider-horizontal
+		{
+			width: 100%;
+		}
+	</style>
+</head>
+<body>
+	<div class="container" ng-controller='MainCtrl'>
+		<div class="row">
+			<div class="col-md-8 col-md-offset-2">				
+				<h1><span class="glyphicon glyphicon-cog"></span> Servo Motor</h1>
+				<h2>Current Angle: {{servo.position}} º</h2>
+				<div id="controls">
+					<slider ng-model="servo.position" min="0" max="180" step="1"/>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<script src="../bower_components/angular/angular.min.js"></script>
+	<script src="../bower_components/angular-resource/angular-resource.min.js"></script>
+	<script src="../bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
+	<script src="../bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+	<script src="../bower_components/seiyria-bootstrap-slider/dist/bootstrap-slider.min.js"></script>	
+	<script src="../bower_components/angular-bootstrap-slider/slider.js"></script>
+	<script src="ArduinoRest.js"></script>
+	<script>		
+		var app = angular.module('4_servo', ['ui.bootstrap', 'ui.bootstrap-slider','ArduinoRest']);
+		app.controller('MainCtrl',function($scope, ArduinoServo)
+		{
+			$scope.servo = ArduinoServo.getPosition();
+
+			$scope.$watch('servo.position', function(newValue,oldValue)
+			{
+				ArduinoServo.setPosition($scope.servo);
+			});
+		});	
+	</script>
+</body>
+</html>
